@@ -18,6 +18,9 @@ const EXAMPLE = {
       allow: ["git status", "git diff*", "bun test*"],
       deny: ["git push*", "rm -rf*"],
       providerOptions: { codex: { sandbox_mode: "workspace-write" } },
+      plans: true,
+      taskProvider: null,
+      baseRef: null,
     },
   ],
 };
@@ -62,7 +65,8 @@ function Editor({ settings, theme }: { settings: Ready; theme: PluginSurfaceProp
     <SettingsSection title="Projects">
       <Text style={styles.text}>
         One entry per repository. Checks run in the agent's checkout after each finished turn;
-        allow and deny answer shell permissions for you. Only you can change these: agents
+        allow and deny answer shell permissions for you; plans lets agents propose parallel
+        tasks for you to approve. Only you can change these: agents
         cannot edit them from a repository.
       </Text>
       <View>

@@ -1,4 +1,6 @@
-Mob adds checks, review, and a permission policy between an agent finishing its work and you looking at it.
+Mob adds plans, checks, review, and a permission policy between an agent finishing its work and you looking at it.
+
+An agent in a configured repository can propose a plan of up to six tasks that can run at the same time. The plan appears as a card in its conversation, and nothing starts until you approve it once. Mob then creates one worktree and branch per task, starts an agent in each with its instructions, and shows every task's progress on the card. When all tasks have finished, the proposing agent gets a summary to pass on to you. The plan tools reach agents only when Enable Paseo tools is on for the host.
 
 After a top-level agent in one of your configured repositories finishes a turn, Mob runs the project's commands (such as tests or a build) in that agent's checkout. A failure goes back into the same conversation with the end of its output, a limited number of times, before Mob asks you. When the checks pass, Mob can start a reviewer agent, ideally from another provider, as a subagent of the worker. The reviewer reads the change without editing it and ends with a verdict. Its findings go back to the worker for a limited number of rounds. A Mob card in the worker's timeline shows each step and ends at "Ready" or "Needs you". Mob never pushes or merges.
 
