@@ -1,0 +1,6 @@
+{
+  "id": "mob",
+  "name": "Mob",
+  "media": [],
+  "requirements": { "paseo": ">=0.15.0" }
+}
