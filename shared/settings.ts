@@ -46,6 +46,12 @@ export const ProjectSchema = z.object({
    * example `{ "codex": { "sandbox_mode": "workspace-write" } }`.
    */
   providerOptions: z.record(z.string(), z.record(z.string(), z.json())).default({}),
+  /** Give agents in this project `mob_task_plan`, so they can propose parallel tasks for you to approve. */
+  plans: z.boolean().default(true),
+  /** `provider/model` for plan tasks that name none. Null uses the proposing agent's provider. */
+  taskProvider: z.string().min(1).nullable().default(null),
+  /** Branch or ref new task worktrees start from. Null uses Paseo's default. */
+  baseRef: z.string().min(1).nullable().default(null),
 });
 
 export const MobSettingsSchema = z.object({

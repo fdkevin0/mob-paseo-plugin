@@ -7,7 +7,27 @@ review the work, and answers routine permission requests by a policy you set.
 Paseo already runs the agents, worktrees, terminals and mobile app. This plugin adds the part
 Mob is about: deterministic steps between "the agent says it is done" and "you look at it".
 
-## What v0 does
+## Plans
+
+An agent in a configured project gets two tools: `mob_task_plan` and `mob_plan_status`.
+
+1. **Propose.** When work splits into parts that can run at the same time, the agent proposes a
+   plan of 1 to 6 tasks, each with its own instructions, provider and blueprint.
+2. **Approve once.** The plan appears as a card in that agent's timeline. Nothing starts until
+   you press **Approve and start** (or **Decline**).
+3. **Start.** Mob creates one Paseo worktree per task on a `mob/<task>-<id>` branch and starts
+   an agent there with the task's instructions. Each task then runs its blueprint (below).
+4. **Report.** The card shows each task's state. When every task has finished, the proposing
+   agent gets one summary to pass on to you. Nothing is pushed or merged.
+
+Agents Mob starts for a task or a review do not get the tools, and an agent that proposed a
+plan does not run the blueprint itself: its tasks do.
+
+Paseo delivers plugin tools through the same gate as its own tools, so turn on **Enable Paseo
+tools** (Settings → your host → Agents, or `daemon.mcp.injectIntoAgents`), then start or reload
+the agent. Mob answers the tools' permission prompts itself, since a plan still waits for you.
+
+## Blueprint
 
 After a top-level agent finishes a turn in a configured project:
 
@@ -50,7 +70,10 @@ Settings → Plugins → Mob → Projects takes JSON:
       "reviewer": { "provider": "codex/gpt-5.5", "options": { "sandbox_mode": "read-only" } },
       "allow": ["git status*", "git diff*", "bun test*"],
       "deny": ["git push*", "rm -rf*"],
-      "providerOptions": { "codex": { "sandbox_mode": "workspace-write" } }
+      "providerOptions": { "codex": { "sandbox_mode": "workspace-write" } },
+      "plans": true,
+      "taskProvider": "claude/claude-sonnet-5",
+      "baseRef": "main"
     }
   ]
 }
@@ -58,6 +81,8 @@ Settings → Plugins → Mob → Projects takes JSON:
 
 `path` is the main checkout; agents in its worktrees match too. Blueprints: `standard`
 (checks, then review), `quick` (checks only), `manual` (nothing after a turn; policy only).
+`plans` gives agents the plan tools; `taskProvider` is used for tasks that name no provider
+(otherwise the proposing agent's); `baseRef` is where task worktrees branch off.
 
 ## Install
 
@@ -73,8 +98,9 @@ Requires Paseo 0.15 or later.
 
 ## Known limits
 
-- **State is in memory.** A daemon or plugin restart forgets retry and review counters; the
-  next finished turn starts a new cycle.
+- **State is in memory.** A daemon or plugin restart forgets retry and review counters (the
+  next finished turn starts a new cycle) and plans: a card left waiting then explains that
+  the agent has to propose it again, and running tasks stop updating their plan card.
 - **Permission answers race you.** Paseo's `agent.permission.before` hook only notifies, so the
   request can show briefly before Mob answers it.
 - **Subagents are skipped.** Agents with a parent (including Mob's reviewers) do not run the
